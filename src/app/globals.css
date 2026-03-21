@@ -1,69 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@700;800;900&family=Inter:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @theme {
-  /* Colors */
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
+  /* === Card-inspired color palette === */
+  /* Baize green (casino felt) */
+  --color-felt:        hsl(152 40% 14%);
+  --color-felt-light:  hsl(152 35% 20%);
+  --color-felt-glow:   hsl(152 50% 28%);
 
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
+  /* Card backgrounds */
+  --color-card-ivory:  hsl(42 30% 96%);
+  --color-card-dark:   hsl(220 18% 10%);
 
-  --color-primary: hsl(221.2 83.2% 53.3%);
-  --color-primary-foreground: hsl(210 40% 98%);
+  /* Suit red (hearts/diamonds) */
+  --color-suit-red:    hsl(4 78% 50%);
+  --color-suit-red-light: hsl(4 78% 62%);
 
-  --color-secondary: hsl(210 40% 96.1%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+  /* Gold accent */
+  --color-gold:        hsl(42 80% 56%);
+  --color-gold-light:  hsl(42 90% 70%);
+  --color-gold-pale:   hsl(42 60% 90%);
 
-  --color-muted: hsl(210 40% 96.1%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  /* Neutrals */
+  --color-ink:         hsl(220 25% 8%);
+  --color-ink-soft:    hsl(220 15% 18%);
+  --color-smoke:       hsl(220 12% 55%);
+  --color-ash:         hsl(220 10% 78%);
+  --color-parchment:   hsl(42 18% 95%);
 
-  --color-accent: hsl(210 40% 96.1%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
+  /* Tokens used by shadcn/ui */
+  --color-background:            hsl(220 18% 10%);
+  --color-foreground:            hsl(42 18% 95%);
+  --color-card:                  hsl(220 18% 13%);
+  --color-card-foreground:       hsl(42 18% 95%);
+  --color-primary:               hsl(42 80% 56%);
+  --color-primary-foreground:    hsl(220 18% 10%);
+  --color-secondary:             hsl(152 40% 14%);
+  --color-secondary-foreground:  hsl(42 18% 95%);
+  --color-muted:                 hsl(220 15% 18%);
+  --color-muted-foreground:      hsl(220 12% 55%);
+  --color-accent:                hsl(4 78% 50%);
+  --color-accent-foreground:     hsl(42 18% 95%);
+  --color-destructive:           hsl(4 78% 50%);
+  --color-destructive-foreground:hsl(42 18% 95%);
+  --color-border:                hsl(220 15% 22%);
+  --color-input:                 hsl(220 15% 18%);
+  --color-ring:                  hsl(42 80% 56%);
 
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
+  --radius: 0.75rem;
 
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(221.2 83.2% 53.3%);
-
-  --radius: 0.5rem;
-
-  /* Font */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Sora", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Dark mode overrides */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: hsl(222.2 84% 4.9%);
-    --color-foreground: hsl(210 40% 98%);
-
-    --color-card: hsl(222.2 84% 4.9%);
-    --color-card-foreground: hsl(210 40% 98%);
-
-    --color-primary: hsl(217.2 91.2% 59.8%);
-    --color-primary-foreground: hsl(222.2 47.4% 11.2%);
-
-    --color-secondary: hsl(217.2 32.6% 17.5%);
-    --color-secondary-foreground: hsl(210 40% 98%);
-
-    --color-muted: hsl(217.2 32.6% 17.5%);
-    --color-muted-foreground: hsl(215 20.2% 65.1%);
-
-    --color-accent: hsl(217.2 32.6% 17.5%);
-    --color-accent-foreground: hsl(210 40% 98%);
-
-    --color-destructive: hsl(0 62.8% 30.6%);
-    --color-destructive-foreground: hsl(210 40% 98%);
-
-    --color-border: hsl(217.2 32.6% 17.5%);
-    --color-input: hsl(217.2 32.6% 17.5%);
-    --color-ring: hsl(224.3 76.3% 48%);
-  }
-}
-
-/* Base styles */
+/* ── Base ─────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -71,7 +61,84 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* Subtle felt texture overlay */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, hsl(152 40% 18% / 0.35) 0%, transparent 60%);
 }
+
+/* ── Typography ───────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+/* ── Suit decoration utilities ────────────────────────────── */
+.suit-red   { color: var(--color-suit-red); }
+.suit-black { color: var(--color-foreground); }
+.text-gold  { color: var(--color-gold); }
+
+/* ── Card chip / badge ────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  background: hsl(152 40% 14%);
+  border: 1px solid hsl(152 50% 28% / 0.6);
+  color: var(--color-gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Glass card ───────────────────────────────────────────── */
+.glass-card {
+  background: hsl(220 18% 13% / 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(220 15% 28% / 0.6);
+  border-radius: var(--radius);
+  box-shadow:
+    0 1px 0 hsl(220 15% 35% / 0.3) inset,
+    0 8px 32px hsl(220 25% 4% / 0.5);
+}
+
+/* ── Step number decoration ───────────────────────────────── */
+.step-number {
+  font-family: var(--font-heading);
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: hsl(220 15% 22%);
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Glow effects ─────────────────────────────────────────── */
+.glow-gold {
+  box-shadow: 0 0 24px hsl(42 80% 56% / 0.25), 0 0 2px hsl(42 80% 56% / 0.4);
+}
+.glow-red {
+  box-shadow: 0 0 24px hsl(4 78% 50% / 0.25), 0 0 2px hsl(4 78% 50% / 0.4);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--color-card); }
+::-webkit-scrollbar-thumb  { background: hsl(220 15% 30%); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
