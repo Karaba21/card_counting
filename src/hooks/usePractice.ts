@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Card, createShoe } from "@/lib/deck";
+import { createShoe } from "@/lib/deck";
+import { Card } from "@/lib/hiLo";
 import { getRunningCount, getTrueCount, getDecksRemaining } from "@/lib/counting";
 import { PracticeSettings, PracticeStats, saveStats, loadStats, defaultStats } from "@/lib/storage";
 
@@ -9,22 +10,25 @@ export type Feedback = {
     correct: boolean;
     message: string;
     delta: number;
+    actualRunningCount: number;
 };
 
+export type GameState = "playing" | "asking" | "feedback";
+
 export function usePractice(settings: PracticeSettings) {
-    // Game State
+    // Game Flow
     const [shoe, setShoe] = useState<Card[]>([]);
     const [currentCards, setCurrentCards] = useState<Card[]>([]);
+    const [gameState, setGameState] = useState<GameState>("playing");
+    const [cardsUntilAsk, setCardsUntilAsk] = useState(-1);
 
-    // Counts
+    // Counts (does not include currentCards)
     const [runningCount, setRunningCount] = useState(0);
     const [trueCount, setTrueCount] = useState(0);
 
-    // Game Status
+    // Global Status & Stats
     const [isPlaying, setIsPlaying] = useState(false);
     const [cardsSeenCount, setCardsSeenCount] = useState(0);
-
-    // Feedback & Stats
     const [feedback, setFeedback] = useState<Feedback | null>(null);
     const [stats, setStats] = useState<PracticeStats>(defaultStats);
     const [streak, setStreak] = useState(0);
@@ -34,62 +38,105 @@ export function usePractice(settings: PracticeSettings) {
         setStats(loadStats());
     }, []);
 
-    // Reset / Start Game
     const resetGame = useCallback(() => {
         const newShoe = createShoe(settings.decks || 6);
-        setShoe(newShoe);
+        const numToDraw = settings.gameMode === "basic" ? 1 
+                        : settings.gameMode === "intermediate" ? settings.cardsPerRound 
+                        : 1;
+        const cardsToDraw = newShoe.slice(0, numToDraw);
+        
+        setShoe(newShoe.slice(numToDraw));
         setRunningCount(0);
         setTrueCount(0);
         setCardsSeenCount(0);
-        setCurrentCards([]);
+        setCurrentCards(cardsToDraw);
         setFeedback(null);
         setStreak(0);
         setIsPlaying(true);
-        // Draw first hand automatically on start?
-        // We can't do it here easily due to state updates.
-        // Let's rely on UI "Start" or "Next" button.
-    }, [settings.decks]);
+        
+        if (settings.gameMode === "basic" || settings.gameMode === "intermediate") {
+            setGameState("asking");
+        } else {
+            setGameState("playing");
+            const newFreq = settings.askFrequency === "random" ? Math.floor(Math.random() * 8) + 5 : newShoe.length;
+            setCardsUntilAsk(newFreq);
+        }
+    }, [settings.decks, settings.gameMode, settings.cardsPerRound, settings.askFrequency]);
 
-    // Draw Next Hand
-    const drawCards = useCallback(() => {
-        if (shoe.length < settings.cardsPerRound) {
-            // Reshuffle or End Game logic could go here
-            // For now, just reset if empty, or notify user.
-            // Let's reset for simplicity in MVP.
+    const nextRound = useCallback(() => {
+        if (shoe.length === 0) {
             resetGame();
             return;
         }
 
-        // Only draw if feedback is cleared or we are ready for next?
-        // Actually, distinct steps: 1. Draw. 2. Guess. 3. Feedback. 4. Next (Draw).
-        // So if feedback is present, 'drawCards' clears it and draws new.
+        // Apply current cards to counts
+        let currentDelta = 0;
+        if (currentCards.length > 0) {
+            currentDelta = getRunningCount(currentCards);
+            setCardsSeenCount(prev => prev + currentCards.length);
+            
+            const newStats = { ...stats, totalCardsSeen: stats.totalCardsSeen + currentCards.length };
+            setStats(newStats);
+            saveStats(newStats);
+        }
 
-        // Update count with PREVIOUS hand (already done in submitAnswer)
-        // Draw NEW hand
-        const cardsToDraw = shoe.slice(0, settings.cardsPerRound);
-        const remainingShoe = shoe.slice(settings.cardsPerRound);
+        const newRunningCount = runningCount + currentDelta;
+        const decksRemaining = getDecksRemaining(shoe.length);
+        const newTrueCount = getTrueCount(newRunningCount, decksRemaining);
 
-        setShoe(remainingShoe);
-        setCurrentCards(cardsToDraw);
+        setRunningCount(newRunningCount);
+        setTrueCount(newTrueCount);
         setFeedback(null);
 
-    }, [shoe, settings.cardsPerRound, resetGame]);
+        // Draw new cards
+        const numToDraw = settings.gameMode === "basic" ? 1 
+                        : settings.gameMode === "intermediate" ? settings.cardsPerRound 
+                        : 1;
 
-    // Submit Answer
-    const submitAnswer = useCallback((userDelta: number) => {
+        if (shoe.length < numToDraw) {
+            resetGame();
+            return;
+        }
+
+        const cardsToDraw = shoe.slice(0, numToDraw);
+        setShoe(shoe.slice(numToDraw));
+        setCurrentCards(cardsToDraw);
+
+        // Decide next state
+        if (settings.gameMode === "basic" || settings.gameMode === "intermediate") {
+            setGameState("asking");
+        } else {
+            // Advanced or Pro
+            const nextAsk = cardsUntilAsk - 1;
+            if (nextAsk <= 0 || shoe.length - numToDraw === 0) {
+                setGameState("asking");
+                const newFreq = settings.askFrequency === "random" ? Math.floor(Math.random() * 12) + 8 : shoe.length + 1;
+                setCardsUntilAsk(newFreq);
+            } else {
+                setGameState("playing");
+                setCardsUntilAsk(nextAsk);
+            }
+        }
+    }, [shoe, currentCards, runningCount, stats, settings.gameMode, settings.cardsPerRound, settings.askFrequency, cardsUntilAsk, resetGame]);
+
+    const submitAnswer = useCallback((userGuess: number) => {
         if (!currentCards.length) return;
 
-        const correctDelta = currentCards.reduce((acc, card) => {
-            // We need to import getHiLoValue or calculate here
-            // Ideally use helper from counting.ts which uses single card value logic?
-            // counting.ts: getRunningCount(cards)
-            return getRunningCount([card]) + acc;
-        }, 0);
+        const currentDelta = getRunningCount(currentCards);
+        const actualRunningCount = runningCount + currentDelta;
+        const decksRemainingForTrue = getDecksRemaining(shoe.length); 
+        const actualTrueCount = Math.round(getTrueCount(actualRunningCount, decksRemainingForTrue));
 
-        // Wait, getRunningCount takes array.
-        const actualDelta = getRunningCount(currentCards);
+        let correctAnswer = 0;
+        if (settings.gameMode === "basic" || settings.gameMode === "intermediate") {
+            correctAnswer = currentDelta;
+        } else if (settings.gameMode === "advanced") {
+            correctAnswer = actualRunningCount;
+        } else if (settings.gameMode === "pro") {
+            correctAnswer = actualTrueCount;
+        }
 
-        const isCorrect = userDelta === actualDelta;
+        const isCorrect = userGuess === correctAnswer;
 
         // Update Stats
         const newStats = { ...stats };
@@ -100,39 +147,43 @@ export function usePractice(settings: PracticeSettings) {
             newStats.incorrectAnswers += 1;
             setStreak(0);
         }
-        newStats.totalCardsSeen += currentCards.length;
         setStats(newStats);
         saveStats(newStats);
 
-        // Update Global Counts
-        const newRunningCount = runningCount + actualDelta;
-        const decksRemaining = getDecksRemaining(shoe.length); // shoe.length is ALREADY reduced by drawCards
-        const newTrueCount = getTrueCount(newRunningCount, decksRemaining);
-
-        setRunningCount(newRunningCount);
-        setTrueCount(newTrueCount);
-        setCardsSeenCount(prev => prev + currentCards.length);
-
         setFeedback({
             correct: isCorrect,
-            message: isCorrect ? "¡Correcto!" : `Incorrecto. Era ${actualDelta > 0 ? '+' : ''}${actualDelta}.`,
-            delta: actualDelta
+            message: isCorrect ? "¡Correcto!" : `Incorrecto. Era ${correctAnswer > 0 ? '+' : ''}${correctAnswer}.`,
+            delta: currentDelta,
+            actualRunningCount: actualRunningCount
         });
+        setGameState("feedback");
+    }, [currentCards, runningCount, shoe.length, stats, settings.gameMode]);
 
-    }, [currentCards, runningCount, shoe.length, stats]);
+    const stopGame = useCallback(() => {
+        setShoe([]);
+        setCurrentCards([]);
+        setRunningCount(0);
+        setTrueCount(0);
+        setCardsSeenCount(0);
+        setFeedback(null);
+        setStreak(0);
+        setIsPlaying(false);
+    }, []);
 
     return {
         shoe,
         currentCards,
-        runningCount,
+        gameState,
+        runningCount, // Used for HUD. HUD should probably display the count BEFORE the current cards are applied.
         trueCount,
         cardsSeenCount,
         feedback,
         streak,
         stats,
         isPlaying,
-        drawCards,
+        nextRound,
         submitAnswer,
-        resetGame
+        resetGame,
+        stopGame
     };
 }

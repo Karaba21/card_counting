@@ -18,11 +18,6 @@ export function getHiLoValue(rank: Rank): number {
 }
 
 export function getCardImageSrc(card: Card): string {
-    // Contract: /cards/{rank}_of_{suit}.png
-    // Example: /cards/A_of_spades.png
-    // Using lower case for safety, though user specified Mixed Case in example (A_of_spades), 
-    // usually filenames are better handled if consistent.
-    // The user example: A_of_spades.png. 
-    // Code should be resilient.
-    return `/cards/${card.rank}_of_${card.suit}.png`;
+    const suitInitial = card.suit.charAt(0).toUpperCase();
+    return `/cards/${suitInitial}${card.rank}.svg`;
 }
