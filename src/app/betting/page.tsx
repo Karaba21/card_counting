@@ -1,4 +1,6 @@
-import { betSpread, bettingAdvice } from "@/content/bettingContent";
+"use client";
+
+import { betSpread, bettingContent, riskLabel } from "@/content/bettingContent";
 import {
     Table,
     TableBody,
@@ -8,30 +10,34 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/i18n";
 
 export default function BettingPage() {
+    const { lang } = useLanguage();
+    const content = bettingContent[lang];
+
     return (
         <div className="flex flex-col items-start py-8 space-y-12 max-w-4xl mx-auto">
             <div className="space-y-4">
                 <h1 className="text-4xl font-extrabold tracking-tight">
-                    Estrategia de Apuestas
+                    {content.title}
                 </h1>
                 <p className="text-xl text-neutral-500 dark:text-neutral-400">
-                    No sirve de nada saber contar si no sabés cuándo apostar fuerte.
+                    {content.subtitle}
                 </p>
             </div>
 
             <div className="grid gap-8 md:grid-cols-2 w-full">
                 {/* Bet Spread Table */}
                 <div className="space-y-4">
-                    <h2 className="text-2xl font-bold">Tabla de Apuestas (Ejemplo)</h2>
+                    <h2 className="text-2xl font-bold">{content.tableTitle}</h2>
                     <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden bg-white dark:bg-neutral-900">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>True Count</TableHead>
-                                    <TableHead>Unidades</TableHead>
-                                    <TableHead>Riesgo</TableHead>
+                                    <TableHead>{content.colTrueCount}</TableHead>
+                                    <TableHead>{content.colUnits}</TableHead>
+                                    <TableHead>{content.colRisk}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -40,18 +46,18 @@ export default function BettingPage() {
                                         <TableCell className="font-mono">
                                             {stage.trueCount <= 0 ? `<= 0` : `+${stage.trueCount}`}
                                         </TableCell>
-                                        <TableCell className="font-bold">{stage.units} uds</TableCell>
+                                        <TableCell className="font-bold">{stage.units} u</TableCell>
                                         <TableCell>
                                             <Badge
                                                 variant={
-                                                    stage.risk === "Alto"
+                                                    stage.risk === "High"
                                                         ? "destructive"
-                                                        : stage.risk === "Medio"
+                                                        : stage.risk === "Medium"
                                                             ? "warning"
                                                             : "secondary"
                                                 }
                                             >
-                                                {stage.risk}
+                                                {riskLabel[stage.risk][lang]}
                                             </Badge>
                                         </TableCell>
                                     </TableRow>
@@ -60,13 +66,13 @@ export default function BettingPage() {
                         </Table>
                     </div>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400 italic">
-                        * Una &quot;unidad&quot; es tu apuesta mínima estándar (ej. $10).
+                        {content.unitNote}
                     </p>
                 </div>
 
                 {/* Advice Cards */}
                 <div className="space-y-6">
-                    {bettingAdvice.map((advice, idx) => (
+                    {content.advice.map((advice, idx) => (
                         <div
                             key={idx}
                             className="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700"

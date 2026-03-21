@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, BookOpen, Crosshair, Gauge } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 
 /* ── Suit symbols ─────────────────────────────────────────── */
 function Suits() {
@@ -99,6 +102,29 @@ function FeatureCard({
 
 /* ── Page ─────────────────────────────────────────────────── */
 export default function Home() {
+  const { t } = useLanguage();
+
+  const steps = [
+    {
+      step: "01",
+      title: t("home_step1_title"),
+      desc: t("home_step1_desc"),
+      color: "hsl(42 80% 56%)",
+    },
+    {
+      step: "02",
+      title: t("home_step2_title"),
+      desc: t("home_step2_desc"),
+      color: "hsl(4 78% 55%)",
+    },
+    {
+      step: "03",
+      title: t("home_step3_title"),
+      desc: t("home_step3_desc"),
+      color: "hsl(152 50% 48%)",
+    },
+  ];
+
   return (
     <div className="flex flex-col">
 
@@ -136,7 +162,7 @@ export default function Home() {
         {/* Badge */}
         <div className="chip mb-5 relative">
           <Suits />
-          Sistema Hi-Lo
+          {t("home_badge")}
         </div>
 
         {/* Headline */}
@@ -148,7 +174,7 @@ export default function Home() {
             letterSpacing: "-0.02em",
           }}
         >
-          <span style={{ color: "hsl(42 30% 95%)" }}>Domina el </span>
+          <span style={{ color: "hsl(42 30% 95%)" }}>{t("home_headline_1")}</span>
           <span
             style={{
               background: "linear-gradient(135deg, hsl(42 90% 60%) 0%, hsl(42 80% 70%) 50%, hsl(4 78% 55%) 100%)",
@@ -160,15 +186,14 @@ export default function Home() {
             Blackjack
           </span>
           <br />
-          <span style={{ color: "hsl(42 30% 95%)" }}>contando cartas.</span>
+          <span style={{ color: "hsl(42 30% 95%)" }}>{t("home_headline_2")}</span>
         </h1>
 
         <p
           className="relative max-w-lg text-lg md:text-xl leading-relaxed mb-10"
           style={{ color: "hsl(220 12% 58%)" }}
         >
-          Aprende la estrategia real de los profesionales. Practica, mejora tu
-          velocidad y vencé a la casa con matemáticas, no con suerte.
+          {t("home_subtitle")}
         </p>
 
         {/* CTAs */}
@@ -182,7 +207,7 @@ export default function Home() {
                 boxShadow: "0 4px 20px hsl(42 80% 56% / 0.35), 0 1px 0 hsl(42 90% 70% / 0.4) inset",
               }}
             >
-              Empezar a Practicar <ArrowRight className="w-4 h-4" />
+              {t("home_cta_practice")} <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
           <Link href="/learn">
@@ -195,7 +220,7 @@ export default function Home() {
                 boxShadow: "0 2px 12px hsl(220 25% 4% / 0.4)",
               }}
             >
-              <BookOpen className="w-4 h-4" /> Aprender la Teoría
+              <BookOpen className="w-4 h-4" /> {t("home_cta_learn")}
             </button>
           </Link>
         </div>
@@ -214,7 +239,7 @@ export default function Home() {
           className="text-center text-xs font-semibold tracking-widest uppercase mb-5"
           style={{ color: "hsl(152 50% 45%)" }}
         >
-          Tabla Hi-Lo de referencia rápida
+          {t("home_hilo_label")}
         </p>
         <div className="flex items-center justify-center gap-10">
           <div className="flex flex-col items-center gap-2">
@@ -229,7 +254,7 @@ export default function Home() {
                 </span>
               ))}
             </div>
-            <HiLoBadge value="+1" color="hsl(152 60% 52%)" label="Contar ↑" />
+            <HiLoBadge value="+1" color="hsl(152 60% 52%)" label={t("home_hilo_count_up")} />
           </div>
 
           <div className="flex flex-col items-center gap-2">
@@ -244,7 +269,7 @@ export default function Home() {
                 </span>
               ))}
             </div>
-            <HiLoBadge value="0" color="hsl(220 12% 55%)" label="Neutral" />
+            <HiLoBadge value="0" color="hsl(220 12% 55%)" label={t("home_hilo_neutral")} />
           </div>
 
           <div className="flex flex-col items-center gap-2">
@@ -259,7 +284,7 @@ export default function Home() {
                 </span>
               ))}
             </div>
-            <HiLoBadge value="−1" color="hsl(4 78% 55%)" label="Contar ↓" />
+            <HiLoBadge value="−1" color="hsl(4 78% 55%)" label={t("home_hilo_count_down")} />
           </div>
         </div>
       </section>
@@ -268,20 +293,20 @@ export default function Home() {
       <section className="grid gap-5 pb-16 md:grid-cols-3">
         <FeatureCard
           icon={<BookOpen className="w-5 h-5" />}
-          title="Aprendizaje Paso a Paso"
-          desc="Desde el sistema Hi-Lo básico hasta el True Count y ajustes de apuestas. Todo explicado claro y sin rodeos."
+          title={t("home_features_title_1")}
+          desc={t("home_features_desc_1")}
           accent="42 80% 56"
         />
         <FeatureCard
           icon={<Crosshair className="w-5 h-5" />}
-          title="Simulación Realista"
-          desc="Cartas reales de API, velocidad ajustable y feedback instantáneo. Como jugar en una mesa de verdad."
+          title={t("home_features_title_2")}
+          desc={t("home_features_desc_2")}
           accent="4 78% 52"
         />
         <FeatureCard
           icon={<Gauge className="w-5 h-5" />}
-          title="Modos de Entrenamiento"
-          desc="Fácil, Intermedio, Avanzado y Pro. Subí de nivel a medida que tu mente se vuelve más rápida."
+          title={t("home_features_title_3")}
+          desc={t("home_features_desc_3")}
           accent="152 50% 45"
         />
       </section>
@@ -299,34 +324,15 @@ export default function Home() {
             className="text-3xl md:text-4xl font-black mb-3"
             style={{ fontFamily: "var(--font-heading)", color: "hsl(42 30% 94%)" }}
           >
-            ¿Cómo funciona?
+            {t("home_how_title")}
           </h2>
           <p style={{ color: "hsl(220 12% 55%)" }}>
-            El conteo de cartas no es ilegal — es habilidad pura.
+            {t("home_how_subtitle")}
           </p>
         </div>
 
         <div className="grid gap-5 md:grid-cols-3 max-w-4xl mx-auto">
-          {[
-            {
-              step: "01",
-              title: "Asigná valores",
-              desc: "2–6 vale +1 · 7–9 vale 0 · 10 y figuras valen −1. Simple como sumar y restar.",
-              color: "hsl(42 80% 56%)",
-            },
-            {
-              step: "02",
-              title: "Sumá mentalmente",
-              desc: "Llevá el Running Count de cada carta que ves. La velocidad llega con la práctica.",
-              color: "hsl(4 78% 55%)",
-            },
-            {
-              step: "03",
-              title: "Ajustá tu apuesta",
-              desc: "Cuenta alta → más fichas. Cuenta baja → apostá el mínimo. Así se gana.",
-              color: "hsl(152 50% 48%)",
-            },
-          ].map((item) => (
+          {steps.map((item) => (
             <div
               key={item.step}
               className="relative flex flex-col p-6 rounded-xl overflow-hidden"
@@ -340,7 +346,7 @@ export default function Home() {
                 className="text-xs font-bold tracking-widest uppercase mb-3"
                 style={{ color: item.color }}
               >
-                Paso {item.step}
+                {t("home_step")} {item.step}
               </span>
               <h3
                 className="text-xl font-bold mb-2 relative z-10"
@@ -361,7 +367,7 @@ export default function Home() {
         className="py-4 text-center text-xs mb-8"
         style={{ color: "hsl(220 12% 40%)" }}
       >
-        Sitio educativo · El conteo de cartas puede resultar en que los casinos te restrinjan el acceso · Jugá responsablemente.
+        {t("home_disclaimer")}
       </section>
     </div>
   );

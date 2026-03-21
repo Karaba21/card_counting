@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-
-const navLinks = [
-    { href: "/learn", label: "Aprender" },
-    { href: "/practice", label: "Practicar" },
-    { href: "/betting", label: "Estrategia" },
-    { href: "/faq", label: "FAQ" },
-];
+import { useLanguage } from "@/lib/i18n";
 
 export function Navbar() {
     const pathname = usePathname();
+    const { lang, setLang, t } = useLanguage();
+
+    const navLinks = [
+        { href: "/learn", labelKey: "nav_learn" as const },
+        { href: "/practice", labelKey: "nav_practice" as const },
+        { href: "/betting", labelKey: "nav_betting" as const },
+        { href: "/faq", labelKey: "nav_faq" as const },
+    ];
 
     return (
         <header
@@ -89,7 +91,7 @@ export function Navbar() {
                                     }
                                 }}
                             >
-                                {link.label}
+                                {t(link.labelKey)}
                             </Link>
                         );
                     })}
@@ -98,6 +100,33 @@ export function Navbar() {
                 {/* Right side */}
                 <div className="flex items-center gap-3 shrink-0">
 
+                    {/* Language toggle */}
+                    <button
+                        onClick={() => setLang(lang === "es" ? "en" : "es")}
+                        aria-label="Toggle language"
+                        className="relative flex items-center gap-0.5 px-1 py-1 rounded-lg transition-all duration-200 overflow-hidden"
+                        style={{
+                            background: "hsl(220 18% 14%)",
+                            border: "1px solid hsl(220 15% 24%)",
+                        }}
+                    >
+                        {(["es", "en"] as const).map((l) => {
+                            const active = lang === l;
+                            return (
+                                <span
+                                    key={l}
+                                    className="relative px-2 py-0.5 rounded-md text-xs font-bold tracking-wide transition-all duration-200"
+                                    style={{
+                                        background: active ? "hsl(42 80% 54%)" : "transparent",
+                                        color: active ? "hsl(220 25% 8%)" : "hsl(220 10% 50%)",
+                                        boxShadow: active ? "0 1px 6px hsl(42 80% 56% / 0.4)" : "none",
+                                    }}
+                                >
+                                    {l.toUpperCase()}
+                                </span>
+                            );
+                        })}
+                    </button>
 
                     {/* CTA button */}
                     <Link href="/practice">
@@ -110,7 +139,7 @@ export function Navbar() {
                                 letterSpacing: "0.01em",
                             }}
                         >
-                            Practicar →
+                            {t("nav_cta")}
                         </button>
                     </Link>
                 </div>

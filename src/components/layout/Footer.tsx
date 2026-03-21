@@ -1,4 +1,15 @@
+"use client";
+
+import { useLanguage } from "@/lib/i18n";
+
+const footerText = {
+    es: "Sitio puramente educativo · El conteo de cartas puede resultar en que los casinos te nieguen el servicio.",
+    en: "Purely educational site · Card counting may result in casinos refusing you service.",
+};
+
 export function Footer() {
+    const { lang } = useLanguage();
+
     return (
         <footer
             style={{
@@ -11,7 +22,7 @@ export function Footer() {
                     className="text-center text-xs md:text-left"
                     style={{ color: "hsl(220 12% 40%)" }}
                 >
-                    Sitio puramente educativo · El conteo de cartas puede resultar en que los casinos te nieguen el servicio.
+                    {footerText[lang]}
                 </p>
                 <p
                     className="flex items-center gap-1 text-xs"

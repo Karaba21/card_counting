@@ -1,17 +1,22 @@
+"use client";
 
-import { learnSections } from "@/content/learnContent";
+import { learnContent } from "@/content/learnContent";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n";
 
 export default function LearnPage() {
+    const { lang, t } = useLanguage();
+    const sections = learnContent[lang];
+
     return (
         <div className="flex flex-col md:flex-row gap-8 py-8 w-full max-w-6xl mx-auto">
             {/* Table of Contents - Sidebar */}
             <aside className="w-full md:w-64 shrink-0">
                 <div className="p-4 border border-neutral-200 dark:border-neutral-800 rounded-lg bg-white dark:bg-neutral-900 sticky top-20">
-                    <h3 className="font-bold mb-4 text-lg">Índice</h3>
+                    <h3 className="font-bold mb-4 text-lg">{t("learn_toc")}</h3>
                     <nav className="flex flex-col space-y-2 text-sm">
-                        {learnSections.map((section) => (
+                        {sections.map((section) => (
                             <Link
                                 key={section.id}
                                 href={`#${section.id}`}
@@ -28,14 +33,14 @@ export default function LearnPage() {
             <article className="flex-1 space-y-12">
                 <div className="space-y-4">
                     <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-                        Guía Completa de Card Counting
+                        {t("learn_title")}
                     </h1>
                     <p className="text-xl text-neutral-500 dark:text-neutral-400">
-                        Domina el arte de vencer a la casa con estadística.
+                        {t("learn_subtitle")}
                     </p>
                 </div>
 
-                {learnSections.map((section) => (
+                {sections.map((section) => (
                     <section
                         key={section.id}
                         id={section.id}
@@ -70,7 +75,7 @@ export default function LearnPage() {
                                             className="bg-blue-50 dark:bg-blue-950/30 border-l-4 border-blue-500 p-4 rounded-r-md"
                                         >
                                             <h4 className="font-bold text-blue-700 dark:text-blue-300 mb-1">
-                                                💡 {block.heading || "Pro Tip"}
+                                                💡 {block.heading || t("proTip_default")}
                                             </h4>
                                             <p className="text-blue-700 dark:text-blue-200">{block.content}</p>
                                         </div>
@@ -84,7 +89,7 @@ export default function LearnPage() {
                                             className="bg-yellow-50 dark:bg-yellow-950/30 border-l-4 border-yellow-500 p-4 rounded-r-md"
                                         >
                                             <h4 className="font-bold text-yellow-700 dark:text-yellow-400 mb-1">
-                                                ⚠️ {block.heading || "Atención"}
+                                                ⚠️ {block.heading || t("warning_default")}
                                             </h4>
                                             <p className="text-yellow-700 dark:text-yellow-200 font-mono text-lg">{block.content}</p>
                                         </div>
@@ -98,7 +103,7 @@ export default function LearnPage() {
                                             className="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700"
                                         >
                                             <h4 className="font-semibold mb-2 text-neutral-800 dark:text-neutral-200">
-                                                📌 Ejemplo:
+                                                {t("example_label")}
                                             </h4>
                                             <p className="italic text-neutral-600 dark:text-neutral-300">{block.content}</p>
                                         </div>
@@ -118,17 +123,17 @@ export default function LearnPage() {
                                                 <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-4">
                                                     <div className="text-2xl font-bold text-green-600">+1</div>
                                                     <div className="text-sm font-semibold mt-1">2 – 6</div>
-                                                    <div className="text-xs text-neutral-500 mt-1">Cartas Bajas</div>
+                                                    <div className="text-xs text-neutral-500 mt-1">{t("cards_low_label")}</div>
                                                 </div>
                                                 <div className="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4">
                                                     <div className="text-2xl font-bold text-neutral-500">0</div>
                                                     <div className="text-sm font-semibold mt-1">7 – 9</div>
-                                                    <div className="text-xs text-neutral-500 mt-1">Cartas Neutras</div>
+                                                    <div className="text-xs text-neutral-500 mt-1">{t("cards_neutral_label")}</div>
                                                 </div>
                                                 <div className="bg-red-100 dark:bg-red-900/30 rounded-lg p-4">
                                                     <div className="text-2xl font-bold text-red-600">-1</div>
                                                     <div className="text-sm font-semibold mt-1">10 – A</div>
-                                                    <div className="text-xs text-neutral-500 mt-1">Cartas Altas</div>
+                                                    <div className="text-xs text-neutral-500 mt-1">{t("cards_high_label")}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -144,7 +149,7 @@ export default function LearnPage() {
                 <div className="py-8">
                     <Link href="/practice">
                         <Button size="lg" className="text-lg px-8 py-6">
-                            Ir a Practicar lo Aprendido →
+                            {t("learn_cta")}
                         </Button>
                     </Link>
                 </div>
